@@ -1,40 +1,51 @@
-import os
+import threading
+from queue import Queue
+from spider import Spider
+from domain import *
+from general import *
 
 
-def createProjectDirectory(directory):
-    if not os.path.exists(directory):
-        print('Creating project ' + directory)
-        os.makedirs(directory)
+PROJECT_NAME = 'github'
+HOMEPAGE = 'https://github.com/zhuqinzhou'
+DOMAIN_NAME = get_domain_name(HOMEPAGE)
+QUEUE_FILE = PROJECT_NAME + '/queue.txt'
+CRAWLED_FILE = PROJECT_NAME + '/crawled.txt'
+NUMBER_OF_THREADS = 16
 
-def createDataFiles(projName, baseURL):
-    queue = projName + '/q.txt'
-    crawled = projName + '/crawled.txt'
-    if not os.path.isfile(queue):
-        createFile(queue, baseURL)
-    if not os.path.isfile(crawled):
-        createFile(crawled, '')
+if os.path.exists('./'+PROJECT_NAME+'/crawled.txt'):
+    os.remove('./'+PROJECT_NAME+'/crawled.txt')
+if os.path.exists('./'+PROJECT_NAME+'/queue.txt'):
+    os.remove('./'+PROJECT_NAME+'/queue.txt')
+queue = Queue()
+Spider(PROJECT_NAME, HOMEPAGE, DOMAIN_NAME)
 
-def createFile(path, date):
-    file = open(path, 'w')
-    file.write(date)
-    file.close()
 
-def appendToFile(path, data):
-    with open(path, 'a') as file:
-        file.write(data + '\n')
+def create_workers():
+    for _ in range(NUMBER_OF_THREADS):
+        t = threading.Thread(target=work)
+        t.daemon = True
+        t.start()
 
-def clearFile(path):
-    with open(path, 'w'):
-        pass
 
-def fileToSet(fileName):
-    result = set();
-    with open(fileName, 'rt') as file:
-        for line in file:
-            result.add(line.replace('\n', ''))
-    return result
+def work():
+    while True:
+        url = queue.get()
+        Spider.crawl_page(threading.current_thread().name, url)
+        queue.task_done()
 
-def setToFile(links, file):
-    clearFile(file)
-    for link in links:
-        appendToFile(file, link)
+
+def create_jobs():
+    for link in file_to_set(QUEUE_FILE):
+        queue.put(link)
+    queue.join()
+    crawl()
+
+
+def crawl():
+    queue_links = file_to_set(QUEUE_FILE)
+    if len(queue_links) > 0:
+        print(str(len(queue_links)) + 'links in the queue')
+        create_jobs()
+
+create_workers()
+crawl()

@@ -42,5 +42,6 @@ def file_to_set(file_name):
 
 def set_to_file(links, file):
     clear_file(file)
+    # why can't remove sorted() ?
     for link in sorted(links):
         append_to_file(file, link)

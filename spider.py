@@ -1,6 +1,6 @@
 from urllib.request import urlopen, HTTPError
 from link_finder import LinkFinder
-from general import *
+from file_operations import *
 import sys
 
 
@@ -21,7 +21,7 @@ class Spider:
         Spider.queue_file = Spider.project_name + '/queue.txt'
         Spider.crawled_file = Spider.project_name + '/crawled.txt'
         self.boot()
-        self.crawl_page('1st psider', Spider.base_url)
+        self.crawl_page('Thread-0', Spider.base_url)
 
     @staticmethod
     def boot():

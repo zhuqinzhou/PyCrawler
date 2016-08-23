@@ -1,21 +1,23 @@
 import threading
 from queue import Queue
 from spider import Spider
-from domain import *
-from general import *
+from parse_domain import *
+from file_operations import *
 
 
-PROJECT_NAME = 'github'
+PROJECT_NAME = 'My GitHub'
 HOMEPAGE = 'https://github.com/zhuqinzhou'
 DOMAIN_NAME = get_domain_name(HOMEPAGE)
 QUEUE_FILE = PROJECT_NAME + '/queue.txt'
 CRAWLED_FILE = PROJECT_NAME + '/crawled.txt'
-NUMBER_OF_THREADS = 16
+NUMBER_OF_THREADS = 8
 
-if os.path.exists('./'+PROJECT_NAME+'/crawled.txt'):
-    os.remove('./'+PROJECT_NAME+'/crawled.txt')
-if os.path.exists('./'+PROJECT_NAME+'/queue.txt'):
-    os.remove('./'+PROJECT_NAME+'/queue.txt')
+# Uncomment to clear projects.
+# if os.path.exists('./'+PROJECT_NAME+'/crawled.txt'):
+#     os.remove('./'+PROJECT_NAME+'/crawled.txt')
+# if os.path.exists('./'+PROJECT_NAME+'/queue.txt'):
+#     os.remove('./'+PROJECT_NAME+'/queue.txt')
+
 queue = Queue()
 Spider(PROJECT_NAME, HOMEPAGE, DOMAIN_NAME)
 
@@ -44,7 +46,7 @@ def create_jobs():
 def crawl():
     queue_links = file_to_set(QUEUE_FILE)
     if len(queue_links) > 0:
-        print(str(len(queue_links)) + 'links in the queue')
+        print(str(len(queue_links)) + ' links in the queue.')
         create_jobs()
 
 create_workers()

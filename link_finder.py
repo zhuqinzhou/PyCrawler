@@ -10,9 +10,9 @@ class LinkFinder(HTMLParser):
         self.pageURL = page_url
         self.links = set()
 
-    def handle_starttag(self, tag, attrs):
+    def handle_starttag(self, tag, attributes):
         if tag == 'a':
-            for(attribute, value) in attrs:
+            for(attribute, value) in attributes:
                 if attribute == 'href':
                     url = parse.urljoin(self.baseURL, value)
                     self.links.add(url)
